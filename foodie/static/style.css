@@ -2,11 +2,6 @@ body {
   background-color: #f6fbf4;
 }
 
-.logo {
-  width: 13em;
-  height: 63px;
-}
-
 h1 {
   font-weight: 300;
 }
@@ -58,4 +53,48 @@ h1 strong {
   background-color: #000000;
   padding: 10px;
   color: #ffffff;
+}
+
+
+/*
+*
+* ==========================================
+* CUSTOM FILE UPLOAD CLASSES
+* ==========================================
+*
+*/
+
+
+#upload {
+  opacity: 0;
+}
+
+#upload-label {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+}
+
+.image-area {
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  padding: 1rem;
+  position: relative;
+}
+
+.image-area::before {
+  color: rgb(61, 175, 9);
+  font-weight: bold;
+  text-transform: uppercase;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  z-index: 1;
+}
+
+.image-area img {
+  z-index: 2;
+  position: relative;
 }

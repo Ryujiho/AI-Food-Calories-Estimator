@@ -1,2 +1,1 @@
-# Foodie-calorie-finder
- Allows you to find colries in your food
+# AI-Food-Calorie-Estimator

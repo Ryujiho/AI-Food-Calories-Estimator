@@ -12,21 +12,103 @@
       crossorigin="anonymous"
     />
     <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
-    <title>Foodie Calorie Finder</title>
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <title>AI Diet</title>
   </head>
 
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js" integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://kit.fontawesome.com/060333564e.js" crossorigin="anonymous"></script>
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap2-toggle.min.js"></script>
+  <script>
+                            
+        /*  ==========================================
+            SHOW UPLOADED IMAGE
+        * ========================================== */
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#imageResult')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        function toggle(input) {
+            console.log('---')
+        }
+
+        $(function () {
+            $('#upload').on('change', function () {
+                readURL(input);
+            });
+
+            $('#toggleBtn').change(function() {
+            //$('#toggleBtn').on('change', function () {
+                status = $(this).prop('checked')
+                if (status == true)
+                {
+                    $('#searchByText').hide();
+                    $('#searchByImage').show();
+                } else if (status == false)
+                {
+                    $('#searchByText').show();
+                    $('#searchByImage').hide();
+                }
+            });
+
+        });
+
+    </script>
   <body>
       <div class="container">
           <div class="row justify-content-center">
               <div class="col-md-8 text-center">
-                  <img src="{% static 'images/logo.png' %}" class="img-responsive logo mb-5 mt-5" />
-                  <form method="POST">
+                  <img src="{% static 'images/Logo.png' %}" class="img-responsive logo mb-3 mt-3" />
+
+                  <!--div>
+                      <https://www.bootstraptoggle.com/>
+                    <input id="toggleBtn" type="checkbox" onchange="toggle(this)" checked data-toggle="toggle" data-on="AI Camera" data-off="Text" data-onstyle="success">
+                  </div-->
+
+                  <form id="searchByText"  method="POST">
                       {%csrf_token%}
                       <div class="input-group input-group-lg mb-5">
                       <input type="text" name="query" class="form-control inputstyle" placeholder="search for calories in your food..." required>
                       <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
                       </div>
                   </form>
+
+                <!--Upload Image -->
+                <form method="POST">
+                    {%csrf_token%}
+                    <div class="input-group input-group-lg mb-3 bg-white shadow-sm">
+                        <input id="upload" type="file" onchange="readURL(this);" class="form-control inputstyle ">
+                        <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
+                        <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
+                    </div>
+                </form>
+                  
+                <!-- Uploaded image area-->
+                <div class="image-area mt-4"><img id="imageResult" src="#" alt="" class="img-fluid rounded shadow-sm mx-auto d-block"></div>
+    
+
+
+                <!-- API Result Message -->
+                <!--
+                <h1> Ingredients : tomato, bread,  </h1>
+                <h1>{{api.0.name | capfirst}} contains 
+                    <strong> {{ for i in 
+                        api.0.ingre
+                    }} .</strong>
+                  </h1>-->
+
                   {% if api %}
                   {% if api == "oops! There was an error" %}
                   <div class ="alert alert-warning"> Oh no! something went wrong.Please try again in sometime. </div>
@@ -50,6 +132,7 @@
                       </div>
                     </div>
                     {%endif%}
+
           </div>
           <div class="row justify-content-center mt-5 mb-5">
               <div class="col-md-10 caloriescont shadow rounded">
@@ -59,6 +142,7 @@
                           <h2 class="mt-3 mb-4">Nutritional Values </h2><span></span>
                           <ul>
                               <li class="servingsize">Serving Size per 100/Grams <span class="float-end"></span></li>
+                              <li>Calories: <span class="float-end">{{api.0.calories}}</span></li>
                               <li>Carbohydrates: <span class="float-end">{{api.0.carbohydrates_total_g}}</span></li>
                               <li>Cholesterol: <span class="float-end">{{api.0.cholesterol_mg}}</span></li>
                               <li>Saturated fat: <span class="float-end">{{api.0.fat_saturated_g}}</span></li>
@@ -109,34 +193,96 @@
                               </div>
                           </div>
                       </div>
-                      <div>
-                        <canvas id="myChart" width="400" height="400"></canvas>
-                        </div>
+                      
+                        <!--Add into Database BTN -->
+                        <form id="save" action="{% url 'save' %}" method="POST" style="text-align: center;">
+                            {%csrf_token%}
+                            <button class="btn whoop" type="submit" id="button-addon2">Save</button>
+                            </div>
+                        </form>
                   </div>
               </div>
               {%endif%}
               {%endif%}
+
+
+            <!--Daily Report-->
+            <div class="row justify-content-center mt-5 mb-5">
+                <div class="col-md-10 caloriescont shadow rounded">
+                    <div class="row">
+                        <h2 class="mt-3 mb-4">Daily Diet Report </h2><span></span>
+
+                        <div>
+                            <canvas id="daily_barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Weekly Report-->
+            <div class="row justify-content-center mt-5 mb-5">
+                <div class="col-md-10 caloriescont shadow rounded">
+                    <div class="row" >
+                        <h2 class="mt-3 mb-4">Weekly Diet Report </h2><span></span>
+
+                        <div>
+                            <canvas id="weekly_barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <!--AI Food Camera-->
+            <div class="row justify-content-center mt-5 mb-5">
+                <div class="col-md-10 caloriescont shadow rounded">
+                    <div class="row">
+                        <h2 class="mt-3 mb-4">How AI Food Camera works? </h2>
+                        <label>AI Food Camera는 음식 이미지로부터 식재료를 분석하고 식재료의 비율과 무게를 추정하여 보다 정밀한 칼로리를 예측합니다. </label>
+                        <br><br>
+
+
+                        <div>
+                            <h5 class="mt-3 mb-4">Step 0. Input Image file</h2>
+                                샌드위치
+                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+
+                            <h5 class="mt-3 mb-4">Step 1. Detect Food Ingreidents </h2>
+                                <label>사전 학습된 Food Ingreident Segementation 모델을 사용하여 입력받은 음식 이미지의 재료를 분석한다. </label>
+                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                            
+                            <h5 class="mt-3 mb-4">Step 2. Measure Portion </h2>
+                                <label>모델의 inference result 값인 output tensor 값을 사용하여 음식에 들어간 식재료의 비율을 추정한다. </label>
+                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+
+                            <h5 class="mt-3 mb-4">Step 3. Calculate Volume </h2>                                
+                                <label>사전에 음식별로 모양을 데이터베이스로 갖고 있어 분석된 식재료의 형태와 가로, 세로 길이를 사용하여 부피를 계산한다. </label>
+                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+
+                            <h5 class="mt-3 mb-4">Step 4. Calculate Calories </h2>
+                                <label>음식의 중량, 식재료를 통해 보다 정밀한 칼로리를 예측한다. </label>
+                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+
+                            <h5 class="mt-3 mb-4">Results </h2>
+                                <label>실제칼로리 : 000kcal, 예측 칼로리 : 000kcal, 오차 : 2% </label>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
           </div>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js" integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
           <script>
-            const ctx = document.getElementById('myChart').getContext('2d');
-            const myChart = new Chart(ctx, {
+                //bar
+                var ctxB = document.getElementById("daily_barChart").getContext('2d');
+                var myBarChart = new Chart(ctxB, {
                 type: 'bar',
                 data: {
-                    labels: ['carbohydrates', 'Cholesterol', 'Saturated fat', 'Total Fat', 'Fiber Content', 'Potassium', 'Protein','Sodium','Sugar'],
+                    labels: ["칼로리", "탄수화물", "지방", "단백질", "나트륨", "설탕"],
                     datasets: [{
-                        label: 'Nutritional values of {{api.0.name | capfirst}}',
-                        data: [
-                              {{api.0.carbohydrates_total_g}},
-                              {{api.0.cholesterol_mg}},
-                              {{api.0.fat_saturated_g}},
-                              {{api.0.fat_saturated_g}},
-                              {{api.0.fat_total_g}},
-                              {{api.0.potassium_mg}},
-                              {{api.0.protein_g}},
-                              {{api.0.sodium_mg}},
-                              {{api.0.sugar_g}},
-                        ],
+                        data: {{chart_today}},
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(54, 162, 235, 0.2)',
@@ -146,7 +292,7 @@
                             'rgba(255, 159, 64, 0.2)'
                         ],
                         borderColor: [
-                            'rgba(255, 99, 132, 1)',
+                            'rgba(255,99,132,1)',
                             'rgba(54, 162, 235, 1)',
                             'rgba(255, 206, 86, 1)',
                             'rgba(75, 192, 192, 1)',
@@ -157,15 +303,65 @@
                     }]
                 },
                 options: {
-                    responsive:true,
-                    maintainAspectRatio:false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    plugins: {
+                        legend: {
+                         display: false
                         }
+                    },
+                    scales: {
+                    yAxes: [{
+                        ticks: {
+                        beginAtZero: true
+                        }
+                    }]
                     }
                 }
-            });
-            </script>
+                });
+
+
+                var ctxB = document.getElementById("weekly_barChart").getContext('2d');
+                var myBarChart = new Chart(ctxB, {
+                type: 'bar',
+                data: {
+                    labels: ["칼로리", "탄수화물", "지방", "단백질", "나트륨", "설탕"],
+                    datasets: [{
+                    data: {{chart_weekly}},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                         display: false
+                        }
+                    },
+                    scales: {
+                    yAxes: [{
+                        ticks: {
+                        beginAtZero: true
+                        }
+                    }]
+                    }
+                }
+                });
+
+          </script>
+
   </body>
 </html>
