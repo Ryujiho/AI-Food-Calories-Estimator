@@ -1,11 +1,16 @@
+from .forms import UploadFileForm
+from django.core.files.storage import FileSystemStorage
+from django.http import FileResponse
 from django.shortcuts import render, redirect
-from django.core import serializers
 from counter.models import Foodies
+from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 import requests
+import os
 from datetime import date, timedelta
 
 
+@ensure_csrf_cookie
 def home(request):
     global api
     
@@ -35,22 +40,33 @@ def home(request):
     params['chart_weekly'] = chart_weekly
     
     if request.method == 'POST':
-        query = request.POST['query']
-        api_url = 'https://api.api-ninjas.com/v1/nutrition?query='
-        api_request = requests.get(
-            api_url + query, headers={'X-Api-Key': 'uF82Rnp+3IHaDuVRJ157GA==We7LxVlYDzefzxtx'})
-        try:
-            api = json.loads(api_request.content)
-            GLOBAL_Request = api
-            print(api_request.content)
-        except Exception as e:
-            api = "oops! There was an error"
-            print(e)
-        params['api'] = api
-        return render(request, 'home.html', params)
+        if 'upload' in request.FILES:
+            file = request.FILES['upload']
+            print(file)
+            
+            newFileName = "input.png"
+            fs = FileSystemStorage()
+            if fs.exists(newFileName):
+                os.remove(newFileName)
+            filename = fs.save(newFileName, file)
+            params['query'] = filename
+        
+        if 'query' in request.POST:
+            query = request.POST['query']
+            api_url = 'https://api.api-ninjas.com/v1/nutrition?query='
+            api_request = requests.get(
+                api_url + query, headers={'X-Api-Key': 'uF82Rnp+3IHaDuVRJ157GA==We7LxVlYDzefzxtx'})
+            try:
+                api = json.loads(api_request.content)
+                print(api_request.content)
+            except Exception as e:
+                api = "oops! There was an error"
+                print(e)
+            params['api'] = api
     else:
         params['query'] = 'Enter a valid query'
-        return render(request, 'home.html', params)
+    
+    return render(request, 'home.html', params)
 
 
 # Insert into DB
@@ -73,3 +89,46 @@ def save(request):
     f.save()
     
     return redirect('home')
+
+## Colab Flask API
+def get_model_results(request):
+    api_name = 'calories'
+    api_name = 'detect'
+    api_name = 'resultImages'
+    api_url = f'http://27bd-34-143-177-75.ngrok.io/'
+    #api_request = requests.get()
+    img = open('input.png', 'rb')
+    upload = {'image': img}
+    api_request = requests.post(f'{api_url}{api_name}', files = upload)
+    print(api_request.content)
+    print(api_request)
+    ## Post Process Image : bounding box -> output.jpg
+    ''''
+     json.load(st_json)
+    {
+    "confidence": 0.9913035035133362,
+    "elapsed_time": 8.349461555480957,
+    "food_name": "hamburger",
+    'bb': (252.65716552734375, 213.94979858398438, 480.865966796875, 537.388671875)
+    }'''
+    return redirect('home')
+
+
+def downloadFile(request, param):
+    print(f"[downloadFile] param (File Name) : {param}")
+    
+    # Download file
+    BASE_DIR = os.getcwd()
+    fs = FileSystemStorage(BASE_DIR)
+    file_name = os.path.basename(param)
+    response = FileResponse(fs.open(file_name, 'rb'),
+                            content_type='video/mp4')
+    response['Content-Disposition'] = f'attachment; filename="{param}"'
+
+    return response
+
+
+def handle_uploaded_file(f):
+    with open(f.name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)

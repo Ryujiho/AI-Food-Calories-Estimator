@@ -23,11 +23,9 @@
   <script src="https://kit.fontawesome.com/060333564e.js" crossorigin="anonymous"></script>
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap2-toggle.min.js"></script>
   <script>
-                            
-        /*  ==========================================
-            SHOW UPLOADED IMAGE
-        * ========================================== */
         function readURL(input) {
+            $("#upload_form").submit();
+
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
@@ -37,11 +35,6 @@
                 };
                 reader.readAsDataURL(input.files[0]);
             }
-        }
-
-
-        function toggle(input) {
-            console.log('---')
         }
 
         $(function () {
@@ -72,11 +65,6 @@
               <div class="col-md-8 text-center">
                   <img src="{% static 'images/Logo.png' %}" class="img-responsive logo mb-3 mt-3" />
 
-                  <!--div>
-                      <https://www.bootstraptoggle.com/>
-                    <input id="toggleBtn" type="checkbox" onchange="toggle(this)" checked data-toggle="toggle" data-on="AI Camera" data-off="Text" data-onstyle="success">
-                  </div-->
-
                   <form id="searchByText"  method="POST">
                       {%csrf_token%}
                       <div class="input-group input-group-lg mb-5">
@@ -84,21 +72,23 @@
                       <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
                       </div>
                   </form>
+                <h3>or</h3><br/
 
                 <!--Upload Image -->
-                <form method="POST">
+                <form id="upload_form" method="post" action="/" enctype="multipart/form-data">
                     {%csrf_token%}
                     <div class="input-group input-group-lg mb-3 bg-white shadow-sm">
-                        <input id="upload" type="file" onchange="readURL(this);" class="form-control inputstyle ">
+                        <input id="upload" name="upload" type="file" onchange="readURL(this);" class="form-control inputstyle ">
                         <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
                         <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
                     </div>
                 </form>
                   
                 <!-- Uploaded image area-->
-                <div class="image-area mt-4"><img id="imageResult" src="#" alt="" class="img-fluid rounded shadow-sm mx-auto d-block"></div>
+                <div class="image-area mt-4">
+                    <img id="imageResult" src="input.png" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                </div>
     
-
 
                 <!-- API Result Message -->
                 <!--
@@ -134,65 +124,32 @@
                     {%endif%}
 
           </div>
-          <div class="row justify-content-center mt-5 mb-5">
+          <div class="row justify-content-center mt-5 mb-5" style="width: 50%">
               <div class="col-md-10 caloriescont shadow rounded">
                   <div class="row">
 
-                      <div class="col-md-6">
-                          <h2 class="mt-3 mb-4">Nutritional Values </h2><span></span>
-                          <ul>
-                              <li class="servingsize">Serving Size per 100/Grams <span class="float-end"></span></li>
-                              <li>Calories: <span class="float-end">{{api.0.calories}}</span></li>
-                              <li>Carbohydrates: <span class="float-end">{{api.0.carbohydrates_total_g}}</span></li>
-                              <li>Cholesterol: <span class="float-end">{{api.0.cholesterol_mg}}</span></li>
-                              <li>Saturated fat: <span class="float-end">{{api.0.fat_saturated_g}}</span></li>
-                              <li>Total Fat: <span class="float-end">{{api.0.fat_saturated_g}}</span></li>
-                              <li>Fiber Content: <span class="float-end">{{api.0.fat_total_g}}</span></li>
-                              <li>Potassium <span class="float-end">{{api.0.potassium_mg}}</span></li>
-                              <li>Protein: <span class="float-end">{{api.0.protein_g}}</span></li>
-                              <li>Sodium:<span class="float-end">{{api.0.sodium_mg}}</span></li>
-                              <li>Sugar: <span class="float-end">{{api.0.sugar_g}}</span></li>
-                          </ul>
-                      </div>
-                      <div class="col-md-6 mb-5">
-                          <h4 class="mt-3 mb-4">To burn {{api.0.calories}} calories you will have to</h4>
-                          <div class="d-flex align-items-center mb-5">
-                              <div class="flex-shrink-0">
-                                  <img src="{% static 'images/running.png' %}" alt="...">
-                              </div>
-                              <div class="flex-grow-1 ms-3">
-                                  <h5> Jog </h5>
-                                  <p>you will have to jog for <strong> {{api.0.calories | div:378|mul:60|floatformat:0}} </strong> Minutes</p>
-                              </div>
-                          </div>
-                          <div class="d-flex align-items-center mb-5">
-                              <div class="flex-shrink-0">
-                                  <img src="{% static 'images/yoga.png' %}" alt="...">
-                              </div>
-                              <div class="flex-grow-1 ms-4">
-                                  <h5> Do Power Yoga </h5>
-                                  <p>you will have to Power Yoga for <strong> {{api.0.calories | div:223|mul:60|floatformat:0}} </strong> Minutes</p>
-                              </div>
-                          </div>
-                          <div class="d-flex align-items-center mb-5">
-                              <div class="flex-shrink-0">
-                                  <img src="{% static 'images/weightlifter.png' %}" alt="...">
-                              </div>
-                              <div class="flex-grow-1 ms-4">
-                                  <h5>Get a Gym Workout </h5>
-                                  <p>you will have to lift weight for <strong> {{api.0.calories | div:483|mul:60|floatformat:0}} </strong> Minutes </p>
-                              </div>
-                          </div>
-                          <div class="d-flex align-items-center">
-                              <div class="flex-shrink-0">
-                                  <img src="{% static 'images/walking.png' %}" alt="...">
-                              </div>
-                              <div class="flex-grow-1 ms-1">
-                                  <h5> Go for a Brisk Walk </h5>
-                                  <p>you will have to brisk walk for <strong> {{api.0.calories | div:294|mul:60|floatformat:0}}  </strong> Minutes</p>
-                              </div>
-                          </div>
-                      </div>
+                        <h2 class="mt-3 mb-4">Nutritional Facts </h2><span></span>
+                        
+                        <div style="width: 90%; 
+                        list-style-type:none;
+                        margin:auto;
+                        padding:0;
+                        position:relative;">
+                        <ul>
+                            <li class="servingsize">Serving Size  {{api.0.calories}}g <span class="float-end"></span></li>
+                            <li>Calories: <span class="float-end">{{api.0.calories}}g</span></li>
+                            <li>Carbohydrates: <span class="float-end">{{api.0.carbohydrates_total_g}}g</span></li>
+                            <li>Cholesterol: <span class="float-end">{{api.0.cholesterol_mg}}g</span></li>
+                            <li>Saturated fat: <span class="float-end">{{api.0.fat_saturated_g}}g</span></li>
+                            <li>Total Fat: <span class="float-end">{{api.0.fat_saturated_g}}g</span></li>
+                            <li>Fiber Content: <span class="float-end">{{api.0.fat_total_g}}g</span></li>
+                            <li>Potassium <span class="float-end">{{api.0.potassium_mg}}g</span></li>
+                            <li>Protein: <span class="float-end">{{api.0.protein_g}}g</span></li>
+                            <li>Sodium:<span class="float-end">{{api.0.sodium_mg}}g</span></li>
+                            <li>Sugar: <span class="float-end">{{api.0.sugar_g}}g</span></li>
+                        </ul>
+                         </div>
+            
                       
                         <!--Add into Database BTN -->
                         <form id="save" action="{% url 'save' %}" method="POST" style="text-align: center;">
