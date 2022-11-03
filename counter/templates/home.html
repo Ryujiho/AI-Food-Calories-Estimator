@@ -13,7 +13,7 @@
     />
     <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <title>AI Diet</title>
+    <title>AI Food Analysis</title>
   </head>
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -30,30 +30,20 @@
                 var reader = new FileReader();
 
                 reader.onload = function (e) {
-                    $('#imageResult')
-                        .attr('src', e.target.result);
+                    $('#imageResult').attr('src', e.target.result);
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         $(function () {
+            
+            //$('img[id=imageResult0]').attr('src', '{% static "images/input.jpg" %}');
+            //$('img[id=imageResult1]').attr('src', '{% static "images/result_od.jpg" %}');
+            //$('img[id=imageResult2]').attr('src', '{% static "images/result_seg.jpg" %}');
+
             $('#upload').on('change', function () {
                 readURL(input);
-            });
-
-            $('#toggleBtn').change(function() {
-            //$('#toggleBtn').on('change', function () {
-                status = $(this).prop('checked')
-                if (status == true)
-                {
-                    $('#searchByText').hide();
-                    $('#searchByImage').show();
-                } else if (status == false)
-                {
-                    $('#searchByText').show();
-                    $('#searchByImage').hide();
-                }
             });
 
         });
@@ -63,16 +53,17 @@
       <div class="container">
           <div class="row justify-content-center">
               <div class="col-md-8 text-center">
-                  <img src="{% static 'images/Logo.png' %}" class="img-responsive logo mb-3 mt-3" />
+                <h1 style="padding-top: 20px; font-size:70px; color:green; margin:10px;">AI Food Analysis</h1>
+                <p style="font-size:25px; color: black;"><em>2022 Graduation Project</em></p>
+                <br/>
 
-                  <form id="searchByText"  method="POST">
-                      {%csrf_token%}
-                      <div class="input-group input-group-lg mb-5">
-                      <input type="text" name="query" class="form-control inputstyle" placeholder="search for calories in your food..." required>
-                      <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
-                      </div>
-                  </form>
-                <h3>or</h3><br/
+                <!--form id="searchByText"  method="POST">
+                    {%csrf_token%}
+                    <div class="input-group input-group-lg mb-5">
+                    <input type="text" name="query" class="form-control inputstyle" placeholder="search for calories in your food..." required>
+                    <button class="btn whoop" type="submit" id="button-addon2">Find calories</button>
+                    </div>
+                </form-->
 
                 <!--Upload Image -->
                 <form id="upload_form" method="post" action="/" enctype="multipart/form-data">
@@ -86,47 +77,34 @@
                   
                 <!-- Uploaded image area-->
                 <div class="image-area mt-4">
-                    <img id="imageResult" src="input.png" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                    <img id="imageResult" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
                 </div>
     
 
-                <!-- API Result Message -->
-                <!--
-                <h1> Ingredients : tomato, bread,  </h1>
-                <h1>{{api.0.name | capfirst}} contains 
-                    <strong> {{ for i in 
-                        api.0.ingre
-                    }} .</strong>
-                  </h1>-->
-
-                  {% if api %}
-                  {% if api == "oops! There was an error" %}
-                  <div class ="alert alert-warning"> Oh no! something went wrong.Please try again in sometime. </div>
-                  {%else%}
-                  <h1>{{api.0.name | capfirst}} has a total of <strong> {{api.0.calories}} Calories</strong>
-                    {%if api.0.calories > 200%}
-                     <img src="{% static 'images/shocked.png' %}" class="img-responsive" />
-                     {%endif%}
-                  </h1>
-                        {%if api.0.sodium_mg > 1000%}
-                      <div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
-                          <div>
-                              This food contains an high amount of sodium. High Sodium causes Sever dehydration and water retention.
-                          </div>
-                        </div>
-                        {%endif%}
-                    {%if api.0.sugar_g > 100%}
-                  <div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
-                      <div>
-                          This food contains an high amount of sugar. Sugar causes insulin spikes and is a no.1 cause for Obesity.
-                      </div>
-                    </div>
-                    {%endif%}
-
+        <!-- API Result Message -->
+            {% if api %}
           </div>
+
           <div class="row justify-content-center mt-5 mb-5" style="width: 50%">
               <div class="col-md-10 caloriescont shadow rounded">
                   <div class="row">
+
+                        <h2 class="mt-3 mb-4">Food Name </h2>
+                        <span>{{api.name | capfirst}} </span>
+
+                        <h2 class="mt-3 mb-4">Food Ingredients </h2>
+                        {% if api.items %}
+                        <span>
+                            {% for item in api.items %}
+                                {% if item.ingredient != 'background' and item.ingredient != 'other ingredients' %}
+                                    {{item.ingredient }},
+                                {%endif%}
+                            {% endfor %}
+                        ...</span>
+                        {%endif%}
+
+                        <h2 class="mt-3 mb-4">Estimated Calories </h2>
+                        <span>{{api.calories | capfirst}}kcal </span>
 
                         <h2 class="mt-3 mb-4">Nutritional Facts </h2><span></span>
                         
@@ -136,17 +114,17 @@
                         padding:0;
                         position:relative;">
                         <ul>
-                            <li class="servingsize">Serving Size  {{api.0.calories}}g <span class="float-end"></span></li>
-                            <li>Calories: <span class="float-end">{{api.0.calories}}g</span></li>
-                            <li>Carbohydrates: <span class="float-end">{{api.0.carbohydrates_total_g}}g</span></li>
-                            <li>Cholesterol: <span class="float-end">{{api.0.cholesterol_mg}}g</span></li>
-                            <li>Saturated fat: <span class="float-end">{{api.0.fat_saturated_g}}g</span></li>
-                            <li>Total Fat: <span class="float-end">{{api.0.fat_saturated_g}}g</span></li>
-                            <li>Fiber Content: <span class="float-end">{{api.0.fat_total_g}}g</span></li>
-                            <li>Potassium <span class="float-end">{{api.0.potassium_mg}}g</span></li>
-                            <li>Protein: <span class="float-end">{{api.0.protein_g}}g</span></li>
-                            <li>Sodium:<span class="float-end">{{api.0.sodium_mg}}g</span></li>
-                            <li>Sugar: <span class="float-end">{{api.0.sugar_g}}g</span></li>
+                            <li style="margin:0px" class="servingsize">Serving Size  {{api.serving_size_g}}g</li>
+                            <li style="padding-left:10px" >Calories: <span class="float-end">{{api.calories}}kcal</span></li>
+                            <li style="padding-left:10px" >Carbohydrates: <span class="float-end">{{api.carbohydrates_total_g}}g</span></li>
+                            <li style="padding-left:10px" >Cholesterol: <span class="float-end">{{api.cholesterol_mg}}mg</span></li>
+                            <li style="padding-left:10px" >Saturated fat: <span class="float-end">{{api.fat_saturated_g}}g</span></li>
+                            <li style="padding-left:10px" >Total Fat: <span class="float-end">{{api.fat_saturated_g}}g</span></li>
+                            <li style="padding-left:10px" >Fiber Content: <span class="float-end">{{api.fat_total_g}}g</span></li>
+                            <li style="padding-left:10px" >Potassium <span class="float-end">{{api.potassium_mg}}mg</span></li>
+                            <li style="padding-left:10px" >Protein: <span class="float-end">{{api.protein_g}}g</span></li>
+                            <li style="padding-left:10px" >Sodium:<span class="float-end">{{api.sodium_mg}}mg</span></li>
+                            <li style="padding-left:10px" >Sugar: <span class="float-end">{{api.sugar_g}}g</span></li>
                         </ul>
                          </div>
             
@@ -160,14 +138,13 @@
                   </div>
               </div>
               {%endif%}
-              {%endif%}
 
 
             <!--Daily Report-->
             <div class="row justify-content-center mt-5 mb-5">
                 <div class="col-md-10 caloriescont shadow rounded">
                     <div class="row">
-                        <h2 class="mt-3 mb-4">Daily Diet Report </h2><span></span>
+                        <h2 class="mt-3 mb-4">Daily Food Report </h2><span></span>
 
                         <div>
                             <canvas id="daily_barChart"></canvas>
@@ -180,7 +157,7 @@
             <div class="row justify-content-center mt-5 mb-5">
                 <div class="col-md-10 caloriescont shadow rounded">
                     <div class="row" >
-                        <h2 class="mt-3 mb-4">Weekly Diet Report </h2><span></span>
+                        <h2 class="mt-3 mb-4">Weekly Food Report </h2><span></span>
 
                         <div>
                             <canvas id="weekly_barChart"></canvas>
@@ -201,28 +178,22 @@
 
                         <div>
                             <h5 class="mt-3 mb-4">Step 0. Input Image file</h2>
-                                샌드위치
-                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
-
-                            <h5 class="mt-3 mb-4">Step 1. Detect Food Ingreidents </h2>
-                                <label>사전 학습된 Food Ingreident Segementation 모델을 사용하여 입력받은 음식 이미지의 재료를 분석한다. </label>
-                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
-                            
-                            <h5 class="mt-3 mb-4">Step 2. Measure Portion </h2>
-                                <label>모델의 inference result 값인 output tensor 값을 사용하여 음식에 들어간 식재료의 비율을 추정한다. </label>
-                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
-
-                            <h5 class="mt-3 mb-4">Step 3. Calculate Volume </h2>                                
+                                <img id="imageResult0" src="{% static 'images/input.jpg' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                                <br/>
+                            <h5 class="mt-3 mb-4">Step 1. Detect Food </h2>
+                                <label>Object Detection 모델을 사용하여 음식을 추론합니다.</label>
+                                <img id="imageResult1" src="{% static 'images/result_od.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                                <br/>
+                            <h5 class="mt-3 mb-4">Step 2. Detect Food Ingredients and Measure Portion </h2>
+                                <label>Food Ingreident Segementation 모델을 사용하여 음식 재료를 추론한다. 모델의 inference result 값인 output tensor 값을 사용하여 음식에 들어간 식재료의 비율을 추정한다. </label>
+                                <img id="imageResult2" src="{% static 'images/result_seg.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                                <br/>
+                            <h5 class="mt-3 mb-4">Step 3. Estimate Volume </h2>                                
                                 <label>사전에 음식별로 모양을 데이터베이스로 갖고 있어 분석된 식재료의 형태와 가로, 세로 길이를 사용하여 부피를 계산한다. </label>
-                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
-
+                                <br/>
                             <h5 class="mt-3 mb-4">Step 4. Calculate Calories </h2>
-                                <label>음식의 중량, 식재료를 통해 보다 정밀한 칼로리를 예측한다. </label>
-                                <img id="imageResult" src="{% static 'images/running.png' %}" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
-
-                            <h5 class="mt-3 mb-4">Results </h2>
-                                <label>실제칼로리 : 000kcal, 예측 칼로리 : 000kcal, 오차 : 2% </label>
-
+                                <label>실제칼로리 : 330kcal, 예측 칼로리 : 325kcal, 오차 : 1.5% </label>
+                                <!--(실제-예측)/실제 *100-->
                         </div>
                     </div>
                 </div>

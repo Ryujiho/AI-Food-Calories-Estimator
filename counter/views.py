@@ -20,13 +20,18 @@ def home(request):
     today = Foodies.objects.filter(created_date__date=today).values()
     weekly = Foodies.objects.filter(created_date__gte=one_week_ago).values()
     
-    chart_today = []
+    chart_today = [0 for i in range(6)]
     chart_weekly = [0 for i in range(6)]
     
     if len(today) != 0:
-        today = today[0]
-        chart_today = [today['calories'], today['carbohydrates'], today['total_fat'], today['protein'], today['sodium'], today['sugar']]
-
+        for data in today:
+            chart_today[0] += data['calories']
+            chart_today[1] += data['carbohydrates']
+            chart_today[2] += data['total_fat']
+            chart_today[3] += data['protein']
+            chart_today[4] += data['sodium']
+            chart_today[5] += data['sugar']
+            
     for data in weekly:
         chart_weekly[0] += data['calories']
         chart_weekly[1] += data['carbohydrates']
@@ -50,7 +55,8 @@ def home(request):
                 os.remove(newFileName)
             filename = fs.save(newFileName, file)
             params['query'] = filename
-        
+            api  = get_model_results(filename)
+            
         if 'query' in request.POST:
             query = request.POST['query']
             api_url = 'https://api.api-ninjas.com/v1/nutrition?query='
@@ -58,11 +64,12 @@ def home(request):
                 api_url + query, headers={'X-Api-Key': 'uF82Rnp+3IHaDuVRJ157GA==We7LxVlYDzefzxtx'})
             try:
                 api = json.loads(api_request.content)
-                print(api_request.content)
+                print(api)
+                api = api[0]
             except Exception as e:
                 api = "oops! There was an error"
                 print(e)
-            params['api'] = api
+        params['api'] = api
     else:
         params['query'] = 'Enter a valid query'
     
@@ -72,7 +79,7 @@ def home(request):
 # Insert into DB
 def save(request):
     global api
-    v =  api[0]
+    v =  api
     f = Foodies()
     f.food_name=v['name']
     f.serving_size=v['serving_size_g']
@@ -92,17 +99,38 @@ def save(request):
 
 ## Colab Flask API
 def get_model_results(request):
-    api_name = 'calories'
-    api_name = 'detect'
-    api_name = 'resultImages'
-    api_url = f'http://27bd-34-143-177-75.ngrok.io/'
-    #api_request = requests.get()
-    img = open('input.png', 'rb')
+    CALORIES = 'calories'
+    DETECT = 'detect'
+    IMAGES = 'resultImages'
+    API_URI = 'http://285c-35-197-86-74.ngrok.io/'
+    
+    fname = 'input.png'
+    img = open(fname, 'rb')
     upload = {'image': img}
-    api_request = requests.post(f'{api_url}{api_name}', files = upload)
+    
+    '''
+    ## 1. Predict Food 
+    api_request = requests.post(f'{API_URI}{DETECT}', files = upload)
     print(api_request.content)
-    print(api_request)
+    food_name = api_request.content['food_name']
+    ## 3. Get Inference Images
+    api_request = requests.get(f'{API_URI}{IMAGES}')
+    print(api_request.files)
+    '''
+    
+    ## 2. Predict Ingredients
+    api_request = requests.post(f'{API_URI}{CALORIES}', files = upload)   
+    response = api_request.content.decode('utf8')
+    response_data = json.loads(response)
+    print(response_data)
+    
+    food_name = 'hamburger'
+    response_data['name'] = food_name
     ## Post Process Image : bounding box -> output.jpg
+    '''items': [{'ingredient': 'bread', 'ratio': 0.31}, {'ingredient': 'background', 'ratio': 0.23}, {'ingredient': 'steak', 'ratio': 0.13}, {'ingredient': 'lettuce', 'ratio': 0.12}, {'ingredient': 'tomato', 'ratio': 0.11}, {'ingredient': 'onion', 'ratio': 0.04}, {'ingredient': 'sauce', 'ratio': 0.01}, {'ingredient': 'other ingredients', 'ratio': 0.01}, {'ingredient': 'cheese butter', 'ratio': 0.01}, {'ingredient': 'sausage', 'ratio': 0.01}, {'ingredient': 'cucumber', 'ratio': 0.01}, {'ingredient': 'chicken duck', 'ratio': 0.0}], 
+    'estimated_calories': 325}
+    '''
+    
     ''''
      json.load(st_json)
     {
@@ -111,24 +139,4 @@ def get_model_results(request):
     "food_name": "hamburger",
     'bb': (252.65716552734375, 213.94979858398438, 480.865966796875, 537.388671875)
     }'''
-    return redirect('home')
-
-
-def downloadFile(request, param):
-    print(f"[downloadFile] param (File Name) : {param}")
-    
-    # Download file
-    BASE_DIR = os.getcwd()
-    fs = FileSystemStorage(BASE_DIR)
-    file_name = os.path.basename(param)
-    response = FileResponse(fs.open(file_name, 'rb'),
-                            content_type='video/mp4')
-    response['Content-Disposition'] = f'attachment; filename="{param}"'
-
-    return response
-
-
-def handle_uploaded_file(f):
-    with open(f.name, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
+    return response_data
