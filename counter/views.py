@@ -102,7 +102,7 @@ def get_model_results(request):
     CALORIES = 'calories'
     DETECT = 'detect'
     IMAGES = 'resultImages'
-    API_URI = 'http://285c-35-197-86-74.ngrok.io/'
+    API_URI = 'http://a23a-34-80-148-202.ngrok.io/'
     
     fname = 'input.png'
     img = open(fname, 'rb')
@@ -121,7 +121,9 @@ def get_model_results(request):
     ## 2. Predict Ingredients
     api_request = requests.post(f'{API_URI}{CALORIES}', files = upload)   
     response = api_request.content.decode('utf8')
-    response_data = json.loads(response)
+    print(response)
+    if len(response) != 0:
+        response_data = json.loads(response)
     print(response_data)
     
     food_name = 'hamburger'
