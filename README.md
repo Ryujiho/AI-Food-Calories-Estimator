@@ -1,7 +1,7 @@
 # AI-Food-Calorie-Estimator
 Code
 - Django Web Project
-- Vision ML Model Jupyter Notebook 
+- ML Model deployment in Jupyter Notebook 
 
 How to Execute?
 - Clone web project and execute `python manage.py runserver`
