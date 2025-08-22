@@ -1,13 +1,37 @@
-# AI-Food-Calorie-Estimator
-Code
-- Django Web Project
-- ML Model deployment in Jupyter Notebook 
+# AI Food Calorie Estimator  
 
-How to Execute?
-- Clone web project and execute `python manage.py runserver`
+A web application that estimates food calories using Machine Learning models.  
 
-Document
-- https://drive.google.com/file/d/1YlApaxSdLjPI-L9CTrIk2kGIRFsMBXVi/view?usp=sharing
+---
 
-Web Demo
-- https://youtu.be/CF_8FF8vmGk
+## 🚀 Features  
+- Django-based web project  
+- ML model deployment via Jupyter Notebook  
+
+---
+
+## ⚙️ How to Run  
+1. Clone the repository  
+2. Run the server:  
+   ```bash
+   python manage.py runserver
+   ```
+
+---
+
+📄 Documentation
+
+[Project Report](https://drive.google.com/file/d/1YlApaxSdLjPI-L9CTrIk2kGIRFsMBXVi/view?usp=sharing)
+
+---
+
+🌐 Demo
+
+[Web Demo](https://youtu.be/CF_8FF8vmGk)
+
+---
+
+🏆 Award
+
+[Hongik University Graduation Project](https://youtu.be/SPUTDWEAlo8?si=NHbS7vrLzQ20xpvi)
+
